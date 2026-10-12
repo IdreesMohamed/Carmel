@@ -1,47 +1,47 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import { ArrowRight, Check, ChevronDown, Factory, Menu, Minus, Package, Plus, Quote, ShoppingBag, Sparkles, X } from 'lucide-react'
+
+const products = [
+  { id: 'heavy-tee', name: 'Heavyweight Oversized Tee', spec: '240 GSM · 100% super-combed cotton', category: 'Tees', sample: 750, wholesale: 340, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85', colors: ['Jet Black', 'Vintage Bone', 'Forest Emerald'], lead: '5–8 days' },
+  { id: 'french-terry-hoodie', name: 'French Terry Drop-Shoulder Hoodie', spec: '420 GSM · 80/20 cotton fleece', category: 'Hoodies', sample: 1450, wholesale: 690, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=85', colors: ['Jet Black', 'Heather Grey', 'Espresso Brown'], lead: '7–12 days' },
+  { id: 'vintage-acid-tee', name: 'Mineral Acid-Washed Vintage Tee', spec: '260 GSM · stone washed cotton', category: 'Tees', sample: 890, wholesale: 420, image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=900&q=85', colors: ['Washed Carbon', 'Vintage Moss', 'Faded Navy'], lead: '8–14 days' },
+  { id: 'pique-polo', name: 'Honeycomb Cotton Pique Polo', spec: '220 GSM · compact cotton knit', category: 'Polos', sample: 850, wholesale: 380, image: 'https://images.unsplash.com/photo-1625910513413-5fc45f7d8c5d?auto=format&fit=crop&w=900&q=85', colors: ['Deep Navy', 'Bright White', 'Jet Black'], lead: '6–10 days' },
+]
+const money = (n: number) => `₹${n.toLocaleString('en-IN')}`
+
 export default function Page() {
-  return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
-    </main>
-  )
+  const [cart, setCart] = useState<{ product: typeof products[number]; qty: number }[]>([])
+  const [cartOpen, setCartOpen] = useState(false)
+  const [category, setCategory] = useState('All')
+  const [mode, setMode] = useState<'Sample' | 'Bulk'>('Bulk')
+  const [qty, setQty] = useState(500)
+  const [technique, setTechnique] = useState('4-Color Screen Print')
+  const [placements, setPlacements] = useState(2)
+  const [faq, setFaq] = useState<number | null>(0)
+  const filtered = category === 'All' ? products : products.filter(p => p.category === category)
+  const cartTotal = cart.reduce((sum, item) => sum + item.product.wholesale * item.qty, 0)
+  const calc = useMemo(() => {
+    const blank = 260
+    const print = { '1-Color Screen Print': 25, '4-Color Screen Print': 45, 'Full-Color DTF': 55, '3D High-Density Puff': 65, 'Metallic Gold Foil': 75, 'Tajima Embroidery': 85 }[technique as keyof typeof print] || 45
+    const multiplier = qty >= 2000 ? .72 : qty >= 1000 ? .8 : qty >= 500 ? .9 : 1
+    const unit = Math.round((blank + print * placements) * multiplier)
+    const retail = Math.round(blank * 3.8)
+    return { unit, retail, total: unit * qty, profit: (retail - unit) * qty, margin: Math.round(((retail - unit) / retail) * 100) }
+  }, [qty, technique, placements])
+  const add = (product: typeof products[number]) => { setCart(current => { const found = current.find(i => i.product.id === product.id); return found ? current.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i) : [...current, { product, qty: 1 }] }); setCartOpen(true) }
+  return <main className="site-shell">
+    <div className="announcement"><span>Export-ready manufacturing from Tirupur, India</span><span className="announcement-detail">Sample dispatch in 48–72 hours <ArrowRight size={14} /></span></div>
+    <nav className="nav container"><a className="brand" href="#top"><span className="brand-mark">C</span><span>CARMEL <i>PRINTINGS</i></span></a><div className="nav-links"><a href="#catalog">Catalog</a><a href="#calculator">Bulk calculator</a><a href="#capabilities">Capabilities</a><a href="#about">Our story</a></div><div className="nav-actions"><button className="icon-button mobile-menu"><Menu /></button><button className="cart-button" onClick={() => setCartOpen(true)}><ShoppingBag size={18} /> Cart <b>{cart.reduce((s, i) => s + i.qty, 0)}</b></button></div></nav>
+    <section className="hero container" id="top"><div className="hero-copy"><div className="eyebrow"><span></span> BUILT FOR THE NEXT LABEL</div><h1>Make your<br /><em>mark.</em></h1><p>Premium export garment manufacturing for brands that care about what they put into the world.</p><div className="hero-actions"><a className="button button-dark" href="#catalog">Explore catalog <ArrowRight size={16} /></a><a className="text-link" href="#calculator">Plan a bulk run <ArrowRight size={15} /></a></div><div className="hero-stats"><div><strong>25K+</strong><span>Garments / day</span></div><div><strong>2.8M</strong><span>Units exported</span></div><div><strong>99.4%</strong><span>On-time dispatch</span></div></div></div><div className="hero-visual"><div className="hero-image"><img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=1200&q=85" alt="Textile rolls and garment production" /><div className="image-note"><span className="dot"></span><span>Made in Tirupur<br /><b>Since 2000</b></span></div></div><div className="vertical-note">CARMEL / EXPORT GARMENTS</div></div></section>
+    <section className="trust-strip"><div className="container trust-inner"><span>TRUSTED BY 450+ LABELS</span><div className="trust-logos"><b>STREET / FORM</b><b>nordhaus</b><b>COMMON GROUND</b><b>ATELIER 09</b></div></div></section>
+    <section className="section container" id="catalog"><div className="section-heading"><div><div className="eyebrow"><span></span> THE COLLECTION</div><h2>Built to be <em>worn.</em></h2></div><p>From first sample to full production.<br />Everything your brand needs, under one roof.</p></div><div className="catalog-toolbar"><div className="tabs">{['All', 'Tees', 'Hoodies', 'Polos'].map(c => <button className={category === c ? 'active' : ''} onClick={() => setCategory(c)} key={c}>{c}</button>)}</div><div className="mode-switch"><span>View pricing</span><button className={mode === 'Sample' ? 'active' : ''} onClick={() => setMode('Sample')}>Samples</button><button className={mode === 'Bulk' ? 'active' : ''} onClick={() => setMode('Bulk')}>Wholesale</button></div></div><div className="product-grid">{filtered.map(product => <article className="product-card" key={product.id}><div className="product-image"><img src={product.image} alt={product.name} /><span className="product-tag">{product.category}</span><button className="quick-add" onClick={() => add(product)}>Quick add <Plus size={15} /></button></div><div className="product-info"><div><h3>{product.name}</h3><p>{product.spec}</p></div><strong>{money(mode === 'Bulk' ? product.wholesale : product.sample)}<small> / unit</small></strong></div><div className="product-footer"><span>{product.colors.join(' · ')}</span><span>{product.lead}</span></div></article>)}</div></section>
+    <section className="calculator-section" id="calculator"><div className="container calc-layout"><div className="calc-copy"><div className="eyebrow"><span></span> BULK ORDER PLANNER</div><h2>From idea<br />to <em>inventory.</em></h2><p>Build your run, see your numbers, and know your margin before you commit.</p><div className="calc-callout"><Sparkles size={17} /><span>Your numbers update in real time as you configure your run.</span></div></div><div className="calc-card"><div className="calc-row"><label>Garment base</label><select><option>240 GSM Heavyweight Tee</option><option>420 GSM French Terry Hoodie</option><option>380 GSM Heavy Crewneck</option></select></div><div className="calc-row"><label>Quantity <b>{qty.toLocaleString()} units</b></label><input type="range" min="50" max="3000" step="50" value={qty} onChange={e => setQty(Number(e.target.value))} /></div><div className="calc-row"><label>Print technique</label><select value={technique} onChange={e => setTechnique(e.target.value)}>{Object.keys({ '1-Color Screen Print': 25, '4-Color Screen Print': 45, 'Full-Color DTF': 55, '3D High-Density Puff': 65, 'Metallic Gold Foil': 75, 'Tajima Embroidery': 85 }).map(t => <option key={t}>{t}</option>)}</select></div><div className="calc-row"><label>Placement zones</label><div className="stepper"><button onClick={() => setPlacements(Math.max(1, placements - 1))}><Minus size={15} /></button><b>{placements} locations</b><button onClick={() => setPlacements(Math.min(3, placements + 1))}><Plus size={15} /></button></div></div><div className="calc-results"><div><span>Estimated unit cost</span><strong>{money(calc.unit)}</strong></div><div><span>Production total</span><strong>{money(calc.total)}</strong></div><div className="profit"><span>Potential brand profit</span><strong>{money(calc.profit)}</strong><small>{calc.margin}% gross margin at {money(calc.retail)} retail</small></div></div><button className="button button-dark full" onClick={() => setCartOpen(true)}>Request a production quote <ArrowRight size={16} /></button></div></div></section>
+    <section className="capabilities container" id="capabilities"><div className="section-heading"><div><div className="eyebrow"><span></span> THE CARMEL STANDARD</div><h2>Craft meets<br /><em>consistency.</em></h2></div><p>Obsessive about the details that make<br />a garment feel right.</p></div><div className="cap-grid"><div className="cap-image"><img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=1000&q=85" alt="Close up of quality garment stitching" /><span>01 / 04</span></div><div className="cap-list">{[['01', 'Fabric-first construction', 'Super-combed cottons, pre-shrunk to less than 2% wash shrinkage.'], ['02', 'Prints that hold up', '100% non-phthalate inks, certified to OEKO-TEX Standard 100 Class 1.'], ['03', 'Built for export', 'Moisture-proof packing, QC inspection, and documentation included.'], ['04', 'A partner, not a vendor', 'One production team from sample room to final dispatch.']].map(([num, title, body], i) => <button className={i === 0 ? 'cap-item active' : 'cap-item'} key={num}><span>{num}</span><div><h3>{title}</h3><p>{body}</p></div><ChevronDown size={18} /></button>)}</div></div></section>
+    <section className="story-section" id="about"><div className="container story-grid"><div><div className="eyebrow"><span></span> THE STORY</div><h2>Good clothes<br />start with<br /><em>good intent.</em></h2></div><div className="story-body"><Quote size={32} /><p>For more than two decades, we have helped the world's most considered labels turn a blank canvas into something people want to live in.</p><p className="muted">Our factory is in Tirupur, the knitwear capital of India. Our ambition is everywhere.</p><a className="text-link" href="mailto:carmelprintings@gmail.com">Talk to our team <ArrowRight size={15} /></a></div></div></section>
+    <section className="faq-section container"><div className="section-heading"><div><div className="eyebrow"><span></span> NEED TO KNOW</div><h2>Questions,<br /><em>answered.</em></h2></div></div><div className="faq-list">{['What is your minimum order quantity?', 'Can I order samples before a bulk run?', 'How long does production take?', 'Do you ship internationally?'].map((q, i) => <div className="faq-item" key={q}><button onClick={() => setFaq(faq === i ? null : i)}><span>0{i + 1}</span><b>{q}</b><Plus size={18} /></button>{faq === i && <p>Yes. We support brands at every stage, from 1–5 piece physical samples to full wholesale production. Our team will guide you through the best option for your timeline.</p>}</div>)}</div></section>
+    <footer><div className="container footer-top"><a className="brand" href="#top"><span className="brand-mark">C</span><span>CARMEL <i>PRINTINGS</i></span></a><div><span>Factory & registered office</span><p>S.F.No. 4/4, Kamaraj Nagar, Carmel Garden,<br />Tirupur – 641 602, Tamil Nadu, India</p></div><div><span>Start a conversation</span><p><a href="mailto:carmelprintings@gmail.com">carmelprintings@gmail.com</a><br />+91 97900 17716</p></div></div><div className="container footer-bottom"><span>© 2024 Carmel Printings. The Lord is my shepherd.</span><span>All prices in INR · Export ready</span></div></footer>
+    {cartOpen && <div className="drawer-backdrop" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={e => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow"><span></span> YOUR SELECTION</span><h2>Cart <em>({cart.length})</em></h2></div><button className="icon-button" onClick={() => setCartOpen(false)}><X /></button></div>{cart.length === 0 ? <div className="empty-cart"><Package size={34} /><p>Your selection is empty.</p><button className="button button-dark" onClick={() => setCartOpen(false)}>Browse catalog</button></div> : <><div className="cart-items">{cart.map(item => <div className="cart-item" key={item.product.id}><img src={item.product.image} alt="" /><div><b>{item.product.name}</b><span>{money(item.product.wholesale)} / unit</span><div className="mini-stepper"><button onClick={() => setCart(c => c.map(i => i.product.id === item.product.id ? { ...i, qty: Math.max(1, i.qty - 1) } : i))}><Minus size={13} /></button>{item.qty}<button onClick={() => setCart(c => c.map(i => i.product.id === item.product.id ? { ...i, qty: i.qty + 1 } : i))}><Plus size={13} /></button></div></div></div>)}</div><div className="cart-summary"><div><span>Subtotal</span><strong>{money(cartTotal)}</strong></div><div><span>QC, packing & handling</span><b>Included</b></div>{cartTotal >= 25000 && <div className="swatch-unlock"><Check size={15} /> Free swatch box unlocked</div>}<button className="button button-dark full">Continue to inquiry <ArrowRight size={16} /></button><small>We’ll confirm final pricing, artwork, and dispatch timeline with you.</small></div></>}</aside></div>}
+  </main>
 }

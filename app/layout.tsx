@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Carmel Printings — Export Garment Manufacturing',
+  description: 'Premium export garment manufacturing from Tirupur, India. Samples, wholesale production, and print finishing for considered labels.',
   generator: 'v0.app',
   icons: {
     icon: [
